@@ -13,6 +13,7 @@
     {% endif %}
   {% endwith %}
   <form method="post" action="{{ url_for('new_product') }}" enctype="multipart/form-data">
+    <input type="hidden" name="token" value="{{ token }}">
     <label for="title">상품명</label>
     <input type="text" id="title" name="title" required>
     <label for="description">설명</label>

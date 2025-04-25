@@ -4,6 +4,15 @@ CREATE DATABASE IF NOT EXISTS trading
     COLLATE utf8mb4_unicode_ci;
 USE trading;
 
+-- 1. trading_user 사용자 생성 (비밀번호는 예시)
+CREATE USER 'trading_user'@'%' IDENTIFIED BY 'example';
+
+-- 2. trading 데이터베이스에만 필요한 권한만 부여
+GRANT SELECT, INSERT, UPDATE, DELETE ON trading.* TO 'trading_user'@'%';
+
+-- 3. 권한 적용
+FLUSH PRIVILEGES;
+
 -- 사용자 테이블
 CREATE TABLE IF NOT EXISTS users (
     id             INT AUTO_INCREMENT PRIMARY KEY,
@@ -13,7 +22,7 @@ CREATE TABLE IF NOT EXISTS users (
     is_active      BOOLEAN       NOT NULL DEFAULT FALSE,
     is_blocked     BOOLEAN       NOT NULL DEFAULT FALSE,
     is_admin       BOOLEAN       NOT NULL DEFAULT FALSE,
-    intro          VARCHAR(255) NOT NULL DEFAULT '소개글을 작성해보세요',
+    intro          VARCHAR(255) DEFAULT NULL,
     balance        DECIMAL(10,2) NOT NULL DEFAULT 0,
     created_at     DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

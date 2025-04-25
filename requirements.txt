@@ -6,3 +6,6 @@ python-dotenv
 bcrypt
 gunicorn
 redis
+Flask-WTF 
+Flask-Limiter
+MarkupSafe

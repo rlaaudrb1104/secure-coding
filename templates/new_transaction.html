@@ -22,6 +22,7 @@
   <p>내 잔액: <strong>{{ "{:,.0f}".format(balance) }}원</strong></p>
 
   <form method="post">
+    <input type="hidden" name="token" value="{{ token }}">
     <!-- 수신자 -->
     <div class="form-group">
       <label for="to_user_name">수신자</label>

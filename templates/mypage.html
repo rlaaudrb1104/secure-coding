@@ -59,6 +59,7 @@
 
   {# 1) 비밀번호 확인 단계 #} {% if not password_verified %}
   <form method="post" action="{{ url_for('mypage') }}">
+    <input type="hidden" name="token" value="{{ token }}">
     <div class="form-group">
       <label for="current_password">비밀번호 확인</label>
       <input
@@ -75,6 +76,7 @@
   {# 2) 확인 통과 시 프로필 · 비밀번호 변경 폼 노출 #} {% else %} {# 소개글 수정
   #}
   <form method="post" action="{{ url_for('update_profile') }}">
+    <input type="hidden" name="token" value="{{ token }}">
     <div class="form-group">
       <label for="intro">소개글</label>
       <textarea
@@ -93,6 +95,7 @@
 
   {# 비밀번호 변경 #}
   <form method="post" action="{{ url_for('change_password') }}">
+    <input type="hidden" name="token" value="{{ token }}">
     <div class="form-group">
       <label for="old_password">현재 비밀번호</label>
       <input

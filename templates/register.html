@@ -6,6 +6,7 @@
 <div class="form-card">
   <h2>회원가입</h2>
   <form method="post" action="{{ url_for('register') }}">
+    <input type="hidden" name="token" value="{{ token }}">
     <label for="username">사용자명</label>
     <input type="text" id="username" name="username" required placeholder="예) jang123" value="{{ request.form.username or '' }}">
 

@@ -13,6 +13,7 @@
     {% endif %}
   {% endwith %}
   <form method="post" action="{{ url_for('report_prod', product_id=product_id) }}">
+    <input type="hidden" name="token" value="{{ token }}">
     <label for="reason">신고 사유</label>
     <textarea id="reason" name="reason" required></textarea>
     <button type="submit">신고하기</button>

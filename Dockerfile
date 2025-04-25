@@ -11,10 +11,16 @@ RUN apt-get update && \
       default-libmysqlclient-dev \
       pkg-config \
       python3-dev && \
-    rm -rf /var/lib/apt/lists/*
+      openssl 
+
+RUN  rm -rf /var/lib/apt/lists/*
 
 # Python 패키지 복사 및 설치
 COPY requirements.txt ./
+
+RUN pip install --upgrade pip && pip install safety
+RUN safety check || true
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 애플리케이션 복사

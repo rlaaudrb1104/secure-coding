@@ -22,17 +22,38 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_wtf import CSRFProtect
+from markupsafe import escape
+import time
+
 # 환경 변수 로드
 load_dotenv()
 
 # Flask 앱 설정
 app = Flask(__name__)
+
+csrf = CSRFProtect(app)
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["5 per second"],  # 예시
+)
+
+# Flask 앱과 연결
+limiter.init_app(app)
+
 app.config.update(
     SECRET_KEY=os.getenv("SECRET_KEY", "changeme"),
     MYSQL_HOST=os.getenv("MYSQL_HOST", "db"),
     MYSQL_USER=os.getenv("MYSQL_USER", "trading_user"),
     MYSQL_PASSWORD=os.getenv("MYSQL_PASSWORD", "example"),
     MYSQL_DB=os.getenv("MYSQL_DATABASE", "trading"),
+    
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SECURE=True,      # HTTPS 환경일 때만 작동함
+    SESSION_COOKIE_SAMESITE='Lax',    # 또는 'Strict'
+    
     UPLOAD_FOLDER="static/uploads",
     MAX_CONTENT_LENGTH=5 * 1024 * 1024,  # 5MB
 )
@@ -48,6 +69,16 @@ socketio = SocketIO(
     message_queue="redis://redis:6379",
 )
 
+@app.after_request
+def add_security_headers(response):
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "img-src 'self' data:; "
+        "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;"
+    )
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    return response
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -86,6 +117,7 @@ def register():
 
 
 @app.route("/login", methods=["GET", "POST"])
+@limiter.limit("5 per minute")
 def login():
     if request.method == "POST":
         email = request.form["email"].strip()
@@ -476,31 +508,54 @@ def on_join(data):
     )
 
 
+# 전역 딕셔너리: 최근 사용자별 메시지 전송 시각 저장 (Rate Limit용)
+user_last_send = {}  # {user_id: timestamp}
+
 @socketio.on("message")
 def on_message(data):
-    room_db = data["room"]
-    msg = data["msg"]
-    sender = session["user_id"]
+    room_db = data.get("room")
+    msg = data.get("msg")
+    sender = session.get("user_id")
 
-    # DB 저장
+    # 1. 세션/데이터 유효성 체크
+    if not sender or not room_db or not msg:
+        emit("error", {"msg": "잘못된 요청입니다."}, room=request.sid)
+        return
+
+    # 2. 메시지 형식 및 길이 검증 (메시지 검증)
+    if not isinstance(msg, str) or not (1 <= len(msg) <= 500):
+        emit("error", {"msg": "메시지는 1~500자 사이여야 합니다."}, room=request.sid)
+        return
+
+    # 3. Rate Limiting (1초에 1회 이하)
+    now = time.time()
+    last = user_last_send.get(sender, 0)
+    if now - last < 1.0:
+        emit("error", {"msg": "너무 빠르게 메시지를 전송하고 있습니다."}, room=request.sid)
+        return
+    user_last_send[sender] = now
+
+    # 4. 메시지 escape 처리 (XSS 방지)
+    msg_clean = escape(msg)
+
+    # 5. DB 저장
     cur = mysql.connection.cursor()
     cur.execute(
         """
         INSERT INTO messages (room, sender_id, content, sent_at)
         VALUES (%s, %s, %s, NOW())
-    """,
-        (room_db, sender, msg),
+        """,
+        (room_db, sender, msg_clean),
     )
     mysql.connection.commit()
     cur.close()
 
-    # 룸에 브로드캐스트
+    # 6. 클라이언트로 브로드캐스트
     emit(
         "message",
-        {"sender": sender, "msg": msg, "time": data.get("time", "")},
+        {"sender": sender, "msg": msg_clean, "time": data.get("time", "")},
         room=room_db,
     )
-
 
 @app.route("/find_friends")
 def find_friends():
@@ -1158,6 +1213,5 @@ def admin_delete_user():
     flash("사용자가 삭제되었습니다.", "success")
     return redirect(url_for("admin_users"))
 
-
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=5000)
+    socketio.run(app, host="0.0.0.0", port=5000,)

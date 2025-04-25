@@ -98,6 +98,7 @@
             <form method="post"
                   action="{{ url_for('admin_block_user') }}"
                   style="display:inline;">
+                  <input type="hidden" name="token" value="{{ token }}">
               <input type="hidden" name="user_id" value="{{ r[3] }}">
               <button type="submit" class="action-btn btn-block-user">
                 사용자 차단

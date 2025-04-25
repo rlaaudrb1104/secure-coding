@@ -97,6 +97,7 @@
           <form method="post"
                 action="{{ url_for('admin_delete_user') }}"
                 style="display:inline">
+                <input type="hidden" name="token" value="{{ token }}">
             <input type="hidden" name="user_id" value="{{ u.id }}">
             <button type="submit" class="btn-delete">삭제</button>
           </form>
