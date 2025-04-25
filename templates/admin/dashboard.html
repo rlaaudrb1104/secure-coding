@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block title %}관리자 대시보드 – WHS 플랫폼{% endblock %}
+
+{% block head %}
+<style>
+  /* 전체 컨테이너 가운데 정렬 & 여백 */
+  .form-card {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 2rem;
+  }
+
+  /* 3컬럼 또는 반응형 그리드 */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2rem;
+    margin-top: 1.5rem;
+  }
+
+  .card {
+    background: white;
+    padding: 1.5rem 1.75rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .card h3 {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  /* 리스트 항목 */
+  ul.stats-list {
+    margin: 0;
+    padding: 0 0 0 1.25rem;
+    list-style-type: disc;
+  }
+  ul.stats-list li {
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+    color: #555;
+  }
+
+  /* 버튼 그룹 */
+  .btn-group {
+    margin-top: 2.5rem;
+    text-align: center;
+  }
+  .btn-group a {
+    display: inline-block;
+    margin: 0.5rem 0.75rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius);
+    font-weight: 500;
+    text-decoration: none;
+    color: #fff;
+    background-color: var(--primary);
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-group a:hover {
+    background-color: #e65500;
+    transform: translateY(-2px);
+  }
+
+  /* 반응형: 너무 좁아지면 1열로 */
+  @media (max-width: 400px) {
+    .dashboard-grid {
+      grid-template-columns: 1fr;
+    }
+    .btn-group a {
+      width: 100%;
+      margin: 0.5rem 0;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-card">
+  <h2 style="text-align:center; color:var(--primary);">관리자 대시보드</h2>
+
+  <div class="dashboard-grid">
+    <!-- 가입자 수 -->
+    <div class="card">
+      <h3>일일 가입자 수</h3>
+      <ul class="stats-list">
+        {% for date, count in user_stats %}
+          <li>{{ date }}: {{ count }}명</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- 거래내역 -->
+    <div class="card">
+      <h3>일일 거래내역</h3>
+      <ul class="stats-list">
+        {% for date, total in sales_stats %}
+          <li>{{ date }}: {{ "{:,.0f}".format(total) }}원</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- 신고 건수 -->
+    <div class="card">
+      <h3>일일 신고 건수</h3>
+      <ul class="stats-list">
+        {% for date, count in report_stats %}
+          <li>{{ date }}: {{ count }}건</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="btn-group">
+    <a href="{{ url_for('admin_transactions') }}">💰 거래내역 전체보기</a>
+    <a href="{{ url_for('admin_reports') }}">🚨 신고 처리</a>
+    <a href="{{ url_for('admin_products') }}">🛒 상품 관리</a>
+    <a href="{{ url_for('admin_users') }}">👤 사용자 관리</a>
+  </div>
+</div>
+{% endblock %}

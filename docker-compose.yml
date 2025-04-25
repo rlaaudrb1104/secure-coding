@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+  redis:
+    image: redis:6-alpine
+    restart: always
+
+  web:
+    build: .
+    command: gunicorn --worker-class eventlet -w 1 -b 0.0.0.0:5000 app:app
+    volumes:
+      - ./:/usr/src/app
+      - uploads:/usr/src/app/static/uploads
+    env_file:
+      - .env
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+      - redis
+volumes:
+  db_data:
+  uploads:

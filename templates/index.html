@@ -1,0 +1,155 @@
+{# templates/index.html #}
+{% extends 'base.html' %}
+
+{% block title %}홈 – WHS 중고거래 플랫폼{% endblock %}
+
+{% block head %}
+<style>
+  /* Hero 카드 중앙 정렬, 폭 제한 */
+  .hero {
+    background: #fff;
+    padding: 2rem;
+    border-radius: var(--radius);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    max-width: 800px;      /* ← 중앙 카드 폭 */
+    margin: 0 auto 2rem;   /* ← 가로 중앙 정렬 + 아래 여백 */
+  }
+  .hero-text {
+    flex: 1 1 300px;
+  }
+  .hero-text h2 {
+    font-size: 2rem;
+    color: var(--primary);
+    margin-bottom: .5rem;
+  }
+  .hero-text p {
+    color: #666;
+    margin-bottom: 1rem;
+  }
+  .hero-text .btn-primary {
+    padding: .75rem 1.5rem;
+  }
+  .hero-image {
+    flex: 1 1 300px;
+    text-align: center;
+  }
+  .hero-image img {
+    max-width: 100%;
+    border-radius: var(--radius);
+  }
+
+  /* 인기 상품 섹션도 중앙에 폭 고정 */
+  .product-section {
+    max-width: 800px;      /* 중앙 폭 동일하게 */
+    margin: 0 auto 2rem;
+  }
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.75rem;
+  }
+  .product-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  .product-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    image-rendering: auto;
+  }
+  .card-body {
+    padding: .75rem;
+  }
+  .card-body h4 {
+    margin: 0 0 .5rem;
+    font-size: 1rem;
+    color: var(--text);
+  }
+  .card-body .price {
+    margin: 0;
+    color: var(--primary);
+    font-weight: bold;
+  }
+  .card-body .views {
+    margin: .25rem 0 0;
+    color: #999;
+    font-size: .85rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+  <!-- 히어로 섹션 -->
+  <section class="hero">
+    <div class="hero-text">
+      <h2>믿을 수 있는 중고 거래, 지금 시작하세요!</h2>
+      <p>가까운 지역 사람들과 안전하게 거래해보세요.</p>
+      <a href="{{ url_for('new_product') }}" class="btn btn-primary">상품 등록하기</a>
+    </div>
+    <div class="hero-image">
+      <img src="{{ url_for('static', filename='WHS.png') }}" alt="WHS">
+    </div>
+  </section>
+
+  <!-- 인기 상품 -->
+  <section class="product-section">
+    <h3>인기 상품</h3>
+    {% if popular_products %}
+      <div class="products-grid">
+        {% for p in popular_products %}
+          <div class="product-card">
+            <a href="{{ url_for('product_detail', product_id=p.id) }}">
+              <img 
+                src="{% if p.image_paths %}
+                        {{ url_for('static', filename=p.image_paths[0]) }}
+                      {% else %}
+                        {{ url_for('static', filename='placeholder.png') }}
+                      {% endif %}"
+                alt="{{ p.title }}">
+              <div class="card-body">
+                <h4>{{ p.title }}</h4>
+                <p class="price">{{ "{:,.0f}".format(p.price) }}원</p>
+                <p class="views">조회 {{ p.views }}</p>
+              </div>
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p>인기 상품이 없습니다.</p>
+    {% endif %}
+  </section>
+
+  <section class="product-section">
+    <h3>전체 상품</h3>
+    {% if all_products %}
+      <div class="products-grid">
+        {% for p in all_products %}
+          <div class="product-card">
+            <a href="{{ url_for('product_detail', product_id=p.id) }}">
+              <img 
+                src="{% if p.image_paths %}
+                        {{ url_for('static', filename=p.image_paths[0]) }}
+                      {% else %}
+                        {{ url_for('static', filename='placeholder.png') }}
+                      {% endif %}"
+                alt="{{ p.title }}">
+              <div class="card-body">
+                <h4>{{ p.title }}</h4>
+                <p class="price">{{ "{:,.0f}".format(p.price) }}원</p>
+                <p class="views">조회 {{ p.views }}</p>
+              </div>
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p>전체 상품이 없습니다.</p>
+    {% endif %}
+  </section>
+{% endblock %}

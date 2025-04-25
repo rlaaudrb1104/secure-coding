@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block title %}상품 관리 – WHS 중고거래 플랫폼{% endblock %}
+
+{% block head %}
+<style>
+  .admin-products-card {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin: 2rem auto;
+    max-width: 1200px;
+  }
+
+  .admin-products-card h2 {
+    margin-top: 0;
+    color: var(--primary);
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
+  .admin-products-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+
+  .admin-products-table th,
+  .admin-products-table td {
+    padding: 0.75rem 1rem;
+    border: 1px solid #eee;
+    text-align: center;
+    font-size: 0.95rem;
+  }
+
+  .admin-products-table th {
+    background: #f9f9f9;
+    color: #555;
+    font-weight: 600;
+  }
+
+  /* 줄무늬 */
+  .admin-products-table tr:nth-child(even) {
+    background: #fafafa;
+  }
+  .admin-products-table tr:hover {
+    background: #fff6e5;
+  }
+
+  .action-btn {
+    display: inline-block;
+    margin: 0 0.25rem;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-delete {
+    background: #d9534f;
+    color: #fff;
+  }
+  .btn-delete:hover {
+    background: #c9302c;
+    transform: translateY(-1px);
+  }
+  .btn-block {
+    background: #f0ad4e;
+    color: #fff;
+  }
+  .btn-block:hover {
+    background: #ec971f;
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 768px) {
+    .admin-products-table th:nth-child(4),
+    .admin-products-table td:nth-child(4),
+    .admin-products-table th:nth-child(5),
+    .admin-products-table td:nth-child(5) {
+      display: none;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-products-card">
+  <h2>상품 관리</h2>
+  <table class="admin-products-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>제목</th>
+        <th>판매자</th>
+        <th>가격</th>
+        <th>상태</th>
+        <th>등록일</th>
+        <th>액션</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in products %}
+      <tr>
+        <td>{{ p[0] }}</td>
+        <td style="text-align:left;">{{ p[1] }}</td>
+        <td>{{ p[2] }}</td>
+        <td>{{ '{:,.0f}'.format(p[3]) }}원</td>
+        <td>{{ p[4] }}</td>
+        <td>{{ p[5] }}</td>
+        <td>
+          <form method="post" action="{{ url_for('admin_delete_product') }}" style="display:inline;">
+            <input type="hidden" name="product_id" value="{{ p[0] }}">
+            <button type="submit" class="action-btn btn-delete">삭제</button>
+          </form>
+          <form method="post" action="{{ url_for('admin_block_product') }}" style="display:inline;">
+            <input type="hidden" name="product_id" value="{{ p[0] }}">
+            <button type="submit" class="action-btn btn-block">차단</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

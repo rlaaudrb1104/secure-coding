@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}회원가입 – WHS 중고거래 플랫폼{% endblock %}
+
+{% block content %}
+<div class="form-card">
+  <h2>회원가입</h2>
+  <form method="post" action="{{ url_for('register') }}">
+    <label for="username">사용자명</label>
+    <input type="text" id="username" name="username" required placeholder="예) jang123" value="{{ request.form.username or '' }}">
+
+    <label for="email">이메일</label>
+    <input type="email" id="email" name="email" required placeholder="you@example.com" value="{{ request.form.email or '' }}">
+
+    <label for="password">비밀번호</label>
+    <input type="password" id="password" name="password" minlength="8" required placeholder="8자 이상 입력하세요">
+
+    <button type="submit">가입하기</button>
+  </form>
+
+  <p style="text-align:center; margin-top:1rem;">
+    이미 계정이 있으신가요?
+    <a href="{{ url_for('login') }}" style="color:var(--primary);">로그인</a>
+  </p>
+</div>
+{% endblock %}

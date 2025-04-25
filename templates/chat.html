@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}채팅 상대: {{ other_name }} – WHS 플랫폼{% endblock %}
+
+{% block head %}
+<style>
+  .chat-card {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    max-width: 800px;
+    margin: 2rem auto;
+  }
+
+  .chat-messages {
+    height: 400px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: var(--radius);
+    padding: .75rem;
+    margin-bottom: 1rem;
+  }
+
+  .msg {
+    margin-bottom: .75rem;
+    display: flex;
+    align-items: flex-end;
+    gap: .5rem;
+  }
+
+  .msg.me {
+    justify-content: flex-end;
+  }
+
+  .msg .avatar {
+    width: 32px;
+    height: 32px;
+    background-color: #f59228;
+    color: white;
+    font-weight: bold;
+    font-size: 0.9rem;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .msg.me .avatar {
+    display: none;
+  }
+
+  .msg .bubble {
+    max-width: 70%;
+    padding: .5rem .75rem;
+    border-radius: var(--radius);
+    background:rgb(138, 161, 226);  
+    color: #fff;
+  }
+
+  .msg.me .bubble {
+    background: var(--primary);
+    color: #fff;
+  }
+
+  .msg .time {
+    font-size: .75rem;
+    color: #999;
+  }
+
+  .chat-input {
+    display: flex;
+    gap: .5rem;
+  }
+
+  .chat-input input {
+    flex: 1 1 auto;
+    padding: .75rem;
+    border: 1px solid #ccc;
+    border-radius: var(--radius);
+    outline: none;
+  }
+
+  .chat-input button {
+    padding: .75rem 1.5rem;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+  }
+
+</style>
+{% endblock %}
+
+{% block content %}
+  <div class="chat-card">
+    <h2>채팅 상대: {{ other_name }}</h2>
+    <div id="messages" class="chat-messages">
+      {% for m in history %}
+        <div class="msg {% if m.sender == session.user_id %}me{% endif %}">
+          <div class="bubble">{{ m.msg }}</div>
+          <div class="time">{{ m.time }}</div>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="chat-input">
+      <input id="msgInput" type="text" placeholder="메시지를 입력하세요…" autocomplete="off">
+      <button id="sendBtn">전송</button>
+    </div>
+  </div>
+
+  <!-- Socket.IO 클라이언트 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.min.js"></script>
+  <script>
+    const socket = io({ 
+      path: '/socket.io',
+      transports: ['polling', 'websocket'],
+  });  // 기본 경로 
+    const room   = "{{ room }}";
+    const me     = {{ session.user_id }};
+    const messagesDiv = document.getElementById('messages');
+
+    // 방 참여
+    socket.emit('join', { room });
+
+    // 메시지 받기
+    socket.on('message', data => {
+      const who = data.sender === me ? 'me' : '';
+      const div = document.createElement('div');
+      div.className = 'msg ' + who;
+      div.innerHTML = `
+        <div class="bubble">${data.msg}</div>
+        <div class="time">${data.time || ''}</div>
+      `;
+      messagesDiv.appendChild(div);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
+
+    // 전송 버튼 & Enter 키
+    document.getElementById('sendBtn').onclick = sendMsg;
+    document.getElementById('msgInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        sendMsg();
+      }
+    });
+
+    function sendMsg() {
+      const input = document.getElementById('msgInput');
+      const msg   = input.value.trim();
+      if (!msg) return;
+      socket.emit('message', {
+        room: room,
+        msg : msg,
+        time: new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' })
+      });
+      input.value = '';
+    }
+  </script>
+{% endblock %}

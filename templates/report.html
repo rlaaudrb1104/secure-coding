@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}상품 신고 – WHS 중고거래 플랫폼{% endblock %}
+{% block content %}
+<div class="form-card">
+  <h2>상품 신고</h2>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul style="color:red; list-style:none; padding:0;">
+        {% for category, message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+  <form method="post" action="{{ url_for('report_prod', product_id=product_id) }}">
+    <label for="reason">신고 사유</label>
+    <textarea id="reason" name="reason" required></textarea>
+    <button type="submit">신고하기</button>
+  </form>
+</div>
+{% endblock %}

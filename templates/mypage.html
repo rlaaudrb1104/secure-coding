@@ -1,0 +1,130 @@
+{# templates/mypage.html #} {% extends 'base.html' %} {% block title %}내 정보
+설정 – WHS 플랫폼{% endblock %} {% block head %}
+<style>
+  .form-card {
+    background: #fff;
+    padding: 2rem;
+    border-radius: var(--radius);
+    max-width: 600px;
+    margin: 2rem auto;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+  .form-card h2 {
+    margin-bottom: 1.5rem;
+    color: var(--primary);
+  }
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    outline: none;
+  }
+  .form-group textarea {
+    resize: vertical;
+  }
+  .btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius);
+    text-decoration: none;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: #fff;
+  }
+  hr {
+    margin: 2rem 0;
+    border: none;
+    border-top: 1px solid #eee;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="form-card">
+  <h2>내 정보 설정</h2>
+
+  {# 1) 비밀번호 확인 단계 #} {% if not password_verified %}
+  <form method="post" action="{{ url_for('mypage') }}">
+    <div class="form-group">
+      <label for="current_password">비밀번호 확인</label>
+      <input
+        type="password"
+        id="current_password"
+        name="current_password"
+        placeholder="현재 비밀번호를 입력하세요"
+        required
+      />
+    </div>
+    <button type="submit" class="btn btn-primary">확인</button>
+  </form>
+
+  {# 2) 확인 통과 시 프로필 · 비밀번호 변경 폼 노출 #} {% else %} {# 소개글 수정
+  #}
+  <form method="post" action="{{ url_for('update_profile') }}">
+    <div class="form-group">
+      <label for="intro">소개글</label>
+      <textarea
+        id="intro"
+        name="intro"
+        rows="4"
+        placeholder="소개글을 입력하세요…"
+      >
+{{ user.intro or '' }}</textarea
+      >
+    </div>
+    <button type="submit" class="btn btn-primary">소개글 저장</button>
+  </form>
+
+  <hr />
+
+  {# 비밀번호 변경 #}
+  <form method="post" action="{{ url_for('change_password') }}">
+    <div class="form-group">
+      <label for="old_password">현재 비밀번호</label>
+      <input
+        type="password"
+        id="old_password"
+        name="old_password"
+        placeholder="현재 비밀번호"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <label for="new_password">새 비밀번호</label>
+      <input
+        type="password"
+        id="new_password"
+        name="new_password"
+        placeholder="새 비밀번호"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <label for="confirm_password">새 비밀번호 확인</label>
+      <input
+        type="password"
+        id="confirm_password"
+        name="confirm_password"
+        placeholder="확인용 비밀번호"
+        required
+      />
+    </div>
+    <button type="submit" class="btn btn-primary">비밀번호 변경</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

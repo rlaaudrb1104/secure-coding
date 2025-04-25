@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}새 송금 – WHS 중고거래{% endblock %}
+
+{% block head %}
+<style>
+  .form-card { max-width: 400px; margin: 2rem auto; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: .5rem; }
+  .form-group input[type="text"],
+  .form-group input[type="number"] {
+    width: 100%; padding: .5rem; border: 1px solid #ddd; border-radius: 4px;
+  }
+  .btn-block { display: block; width: 100%; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-card">
+  <h2>새 송금</h2>
+
+  <!-- 내 잔액 표시 -->
+  <p>내 잔액: <strong>{{ "{:,.0f}".format(balance) }}원</strong></p>
+
+  <form method="post">
+    <!-- 수신자 -->
+    <div class="form-group">
+      <label for="to_user_name">수신자</label>
+      <input id="to_user_name" type="text"
+             value="{{ to_user_name }}" readonly>
+      <input name="to_user_id" type="hidden"
+             value="{{ to_user_id }}">
+    </div>
+
+    <!-- 금액 -->
+    <div class="form-group">
+      <label for="amount">금액</label>
+      <input id="amount" name="amount" type="number"
+             value="{{ amount }}" readonly>
+    </div>
+
+    <!-- 송금하기 버튼 -->
+    <button type="submit"
+            class="btn btn-primary btn-block">
+      송금하기
+    </button>
+  </form>
+</div>
+{% endblock %}

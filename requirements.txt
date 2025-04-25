@@ -1,0 +1,8 @@
+Flask
+Flask-MySQLdb
+Flask-SocketIO
+eventlet
+python-dotenv
+bcrypt
+gunicorn
+redis

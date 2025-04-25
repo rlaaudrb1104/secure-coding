@@ -1,0 +1,109 @@
+{# templates/admin_users.html #}
+{% extends 'base.html' %}
+{% block title %}사용자 관리 – WHS 관리자{% endblock %}
+
+{% block head %}
+<style>
+  /* 카드 컨테이너 */
+  .admin-users-card {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin: 2rem auto;
+    max-width: 1200px;
+  }
+  .admin-users-card h2 {
+    margin-top: 0;
+    color: var(--primary);
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
+  /* 테이블 */
+  .admin-users-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    font-size: 0.95rem;
+  }
+  .admin-users-table th,
+  .admin-users-table td {
+    padding: 0.75rem 1rem;
+    border: 1px solid #eee;
+    text-align: left;
+  }
+  .admin-users-table th {
+    background: #f9f9f9;
+    font-weight: 600;
+    color: #555;
+  }
+  .admin-users-table tr:nth-child(even) {
+    background: #fafafa;
+  }
+  .admin-users-table tr:hover {
+    background: #e6f7ff;
+  }
+
+  /* 액션 버튼 */
+  .admin-users-table .btn-delete {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+  .admin-users-table .btn-delete:hover {
+    background-color: #c82333;
+  }
+
+  /* 반응형: 작은 화면에서 숨길 컬럼 */
+  @media (max-width: 768px) {
+    .admin-users-table th:nth-child(1),
+    .admin-users-table td:nth-child(1),
+    .admin-users-table th:nth-child(5),
+    .admin-users-table td:nth-child(5) {
+      display: none;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-users-card">
+  <h2>사용자 관리</h2>
+  <table class="admin-users-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>사용자명</th>
+        <th>이메일</th>
+        <th>차단됨</th>
+        <th>가입일</th>
+        <th>액션</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.id }}</td>
+        <td>{{ u.username }}</td>
+        <td>{{ u.email }}</td>
+        <td>{% if u.is_blocked %}✅{% else %}❌{% endif %}</td>
+        <td>{{ u.created_at }}</td>
+        <td>
+          <form method="post"
+                action="{{ url_for('admin_delete_user') }}"
+                style="display:inline">
+            <input type="hidden" name="user_id" value="{{ u.id }}">
+            <button type="submit" class="btn-delete">삭제</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

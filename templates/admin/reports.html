@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}신고 관리 – WHS 중고거래 플랫폼{% endblock %}
+
+{% block head %}
+<style>
+  .admin-reports-card {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin: 2rem auto;
+    max-width: 1200px;
+  }
+  .admin-reports-card h2 {
+    margin-top: 0;
+    color: var(--primary);
+    font-size: 1.5rem;
+    text-align: center;
+  }
+  .admin-reports-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  .admin-reports-table th,
+  .admin-reports-table td {
+    padding: 0.75rem 1rem;
+    border: 1px solid #eee;
+    text-align: center;
+    font-size: 0.95rem;
+  }
+  .admin-reports-table th {
+    background: #f9f9f9;
+    color: #555;
+    font-weight: 600;
+  }
+  .admin-reports-table tr:nth-child(even) {
+    background: #fafafa;
+  }
+  .admin-reports-table tr:hover {
+    background: #fff6e5;
+  }
+  .action-btn {
+    display: inline-block;
+    margin: 0 0.25rem;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-block-user {
+    background: #d9534f;
+    color: #fff;
+  }
+  .btn-block-user:hover {
+    background: #c9302c;
+    transform: translateY(-1px);
+  }
+  @media (max-width: 768px) {
+    .admin-reports-table th:nth-child(4),
+    .admin-reports-table td:nth-child(4),
+    .admin-reports-table th:nth-child(6),
+    .admin-reports-table td:nth-child(6) {
+      display: none;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-reports-card">
+  <h2>신고 관리</h2>
+  <table class="admin-reports-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>신고자</th>
+        <th>타입</th>
+        <th>대상 ID</th>
+        <th>사유</th>
+        <th>일시</th>
+        <th>액션</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in reports %}
+      <tr>
+        <td>{{ r[0] }}</td>
+        <td style="text-align:left;">{{ r[1] }}</td>
+        <td>{{ r[2] }}</td>
+        <td>{{ r[3] }}</td>
+        <td style="text-align:left;">{{ r[4] }}</td>
+        <td>{{ r[5] }}</td>
+        <td>
+          {% if r[2] == 'user' %}
+            <form method="post"
+                  action="{{ url_for('admin_block_user') }}"
+                  style="display:inline;">
+              <input type="hidden" name="user_id" value="{{ r[3] }}">
+              <button type="submit" class="action-btn btn-block-user">
+                사용자 차단
+              </button>
+            </form>
+          {% else %}
+            <em>—</em>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

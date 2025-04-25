@@ -1,0 +1,115 @@
+{# templates/chat_list.html #}
+{% extends 'base.html' %}
+{% block title %}채팅 – WHS 중고거래 플랫폼{% endblock %}
+
+{% block head %}
+<style>
+  .chat-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .chat-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.2s;
+  }
+
+  .chat-item:hover {
+    background-color: #f9f9f9;
+  }
+
+  .chat-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .chat-avatar {
+    width: 48px;
+    height: 48px;
+    background-color: #ccc;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .chat-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .chat-user {
+    font-weight: bold;
+    font-size: 1rem;
+  }
+
+  .chat-snippet {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 2px;
+  }
+
+  .chat-time {
+    font-size: 0.8rem;
+    color: #999;
+    margin-left: auto;
+  }
+  /* 상단 버튼 그룹 */
+  .chat-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .chat-controls .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.95rem;
+  }
+</style>
+{% endblock %}
+
+
+{% block content %}
+  <div class="form-card">
+    <h2>채팅 목록</h2>
+
+    <!-- 전체 채팅방 참여 + 친구 찾기 버튼 -->
+    <div class="chat-controls">
+      <a href="{{ url_for('chat', room='All') }}"
+         class="btn btn-primary">
+        전체 채팅방 참여
+      </a>
+      <a href="{{ url_for('find_friends') }}"
+         class="btn btn-primary">
+        친구 찾기
+      </a>
+    </div>
+
+    {% if chats %}
+      <ul class="chat-list">
+        {% for c in chats %}
+          <li>
+            <a class="chat-item" href="{{ url_for('chat', room=c.room) }}">
+              <div class="chat-avatar"></div>
+              <div class="chat-info">
+                <p class="chat-user">{{ c.other_name }}</p>
+                <p class="chat-snippet">{{ c.last_msg }}</p>
+              </div>
+              {% if c.last_time %}
+                <span class="chat-time">{{ c.last_time }}</span>
+              {% endif %}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>아직 대화방이 없습니다.</p>
+    {% endif %}
+  </div>
+{% endblock %}

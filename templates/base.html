@@ -1,0 +1,208 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}WHS 중고거래 플랫폼{% endblock %}</title>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+  <style>
+    :root {
+      --primary: #ff6600;
+      --bg:      #f7f7f7;
+      --text:    #333;
+      --card-bg: #fff;
+      --radius:  8px;
+    }
+    body {
+      font-family: 'Apple SD Gothic Neo', sans-serif;
+      margin:0; padding:0;
+      background: var(--bg);
+      color: var(--text);
+    }
+    header {
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    /* 로고 */
+    .logo {
+      flex: 0 0 auto;
+    }
+    .logo a {
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 1.25rem;
+      font-weight: bold;
+    }
+    /* 검색창 */
+    .search-box {
+      flex: 1 1 auto;
+    }
+    .search-box form {
+      display: flex;
+    }
+    .search-box input[type="text"] {
+      width: 100%;
+      padding: 0.5rem 1rem;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      outline: none;
+      font-size: 1rem;
+    }
+    /* 우측 액션 */
+    .actions {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .actions a {
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      color: #888;
+      font-size: 0.9rem;
+    }
+    /* form-card 스타일 (로그인/가입 등) */
+    .form-card {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: var(--radius);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      max-width: 400px;
+      margin: 2rem auto;
+    }
+    .form-card h2 {
+      margin-top: 0;
+      color: var(--primary);
+      text-align: center;
+    }
+    .form-card label {
+      display: block;
+      margin: 1rem 0 0.5rem;
+      font-weight: 500;
+    }
+    .form-card input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .form-card button {
+      width: 100%;
+      margin-top: 1.5rem;
+      padding: 0.75rem;
+      background: var(--primary);
+      border: none;
+      color: #fff;
+      font-size: 1rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .btn-primary {
+      background: var(--primary);  /* 주황색 */
+      color: #fff;
+      border: none;
+    }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <!-- 1: 로고 -->
+      <div class="logo">
+        <a href="{{ url_for('index') }}">WHS 중고거래 플랫폼</a>
+      </div>
+
+      <!-- 2: 검색창 -->
+      <div class="search-box">
+        <form action="{{ url_for('index') }}" method="get">
+          <input type="text"
+                 name="q"
+                 placeholder="어떤 상품을 찾으시나요?"
+                 value="{{ request.args.get('q','') }}">
+        </form>
+      </div>
+
+      <!-- 3: 로그인/액션 -->
+      <div class="actions">
+        {% if session.user_id %}
+          <a href="{{ url_for('chat_list') }}">
+            💬 채팅하기
+          </a>
+          {% if session.is_admin %}
+            <!-- 관리자 계정일 때 -->
+            <a href="{{ url_for('admin_dashboard') }}">
+              🛠 관리자 페이지
+            </a>
+          {% else %}
+            <!-- 일반 사용자일 때 -->
+            <a href="{{ url_for('mypage') }}">
+              🛍️ 마이페이지
+            </a>
+          {% endif %}
+          <a href="{{ url_for('logout') }}">
+            🚪 로그아웃
+          </a>
+        {% else %}
+          <a href="{{ url_for('login') }}">
+            🔑 로그인
+          </a>
+          <a href="{{ url_for('register') }}">
+            📝 회원가입
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <script>
+          {% for category, message in messages %}
+            alert("{{ message }}");
+          {% endfor %}
+        </script>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    &copy; 2025 WHS 중고거래 플랫폼. All rights reserved.
+  </footer>
+</body>
+</html>

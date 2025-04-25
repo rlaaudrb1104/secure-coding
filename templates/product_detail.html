@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.title }} – WHS 중고거래 플랫폼{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+  <!-- 좌측: 이미지 영역 -->
+  <div class="image-gallery">
+    {% if product.image_paths %}
+      <img src="{{ url_for('static', filename=product.image_paths[0]) }}"
+           alt="{{ product.title }}">
+      {% if product.image_paths|length > 1 %}
+        <div class="thumbs">
+          {% for img in product.image_paths %}
+            <img src="{{ url_for('static', filename=img) }}"
+                 alt="{{ product.title }} 썸네일">
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% else %}
+      <img src="{{ url_for('static', filename='placeholder.png') }}"
+           alt="이미지 없음">
+    {% endif %}
+  </div>
+
+  <!-- 우측: 상세 정보 -->
+  <div class="detail-info">
+    <h2 class="detail-title">{{ product.title }}</h2>
+    <p class="detail-price">{{ '{:,.0f}'.format(product.price) }}원</p>
+
+    <div class="detail-meta">
+      <p>판매자: {{ product.seller_name }}</p>
+      <p>조회수: {{ product.views }}</p>
+    </div>
+
+    <div class="detail-desc">
+      <h3>상품 설명</h3>
+      <p>{{ product.description }}</p>
+    </div>
+
+    <div class="detail-actions">
+      {% if not is_owner %}
+        <a href="{{ url_for('chat', room=room) }}" class="btn btn-outline">
+          채팅하기
+        </a>
+        <a href="{{ url_for('new_transaction') }}?product_id={{ product.id }}" class="btn btn-primary">
+          구매하기
+        </a>
+        <form action="{{ url_for('report_product', product_id=product.id) }}"
+              method="post"
+              style="display:inline; margin-left:0.5rem;">
+          <button type="submit" class="btn btn-danger">
+            신고하기
+          </button>
+        </form>
+      {% else %}
+        <button class="btn btn-outline" disabled>채팅하기</button>
+        <button class="btn btn-primary" disabled>구매하기</button>
+        <button class="btn btn-danger" disabled>신고하기</button>
+
+        <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn btn-outline">
+          수정하기
+        </a>
+        <form action="{{ url_for('delete_product', product_id=product.id) }}"
+              method="post"
+              style="display:inline; margin-left:0.5rem;">
+          <button type="submit" class="btn btn-danger">
+            삭제하기
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<style>
+.detail-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  background: #fff;
+  padding: 2rem;
+  border-radius: var(--radius);
+}
+.image-gallery {
+  flex: 1 1 300px;
+}
+.image-gallery img {
+  width: 100%;
+  border-radius: var(--radius);
+  object-fit: cover;
+}
+.image-gallery .thumbs {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.image-gallery .thumbs img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.detail-info {
+  flex: 1 1 300px;
+  display: flex;
+  flex-direction: column;
+}
+.detail-title {
+  margin: 0 0 1rem;
+  font-size: 1.75rem;
+  color: var(--text);
+}
+.detail-price {
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
+  color: var(--primary);
+  font-weight: bold;
+}
+.detail-meta p {
+  margin: 0.25rem 0;
+  color: #666;
+}
+.detail-desc {
+  margin: 1.5rem 0;
+}
+.detail-desc h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+.detail-desc p {
+  line-height: 1.5;
+  color: var(--text);
+}
+.detail-actions {
+  margin-top: auto;
+  display: flex;
+  gap: 1rem;
+}
+
+/* 버튼 스타일 */
+.btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+  font-weight: 500;
+  text-align: center;
+}
+.btn-outline {
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  background: transparent;
+}
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+}
+.btn-danger {
+  border: 1px solid #e74c3c;
+  color: #e74c3c;
+  background: transparent;
+}
+.btn-danger:hover {
+  background: rgba(231,76,60,0.1);
+}
+</style>
+{% endblock %}
